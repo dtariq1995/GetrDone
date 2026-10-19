@@ -1,5 +1,6 @@
 import {
   IsIn,
+  IsISO8601,
   IsOptional,
   IsString,
   IsTimeZone,
@@ -49,6 +50,16 @@ export class ListTasksQueryDto {
   @IsOptional()
   @IsIn(TASK_SORTS)
   sort: TaskSort = 'manual';
+
+  // Optional due-date window, used by the calendar: tasks due at or after
+  // `from` and before `to`.
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  from?: string;
+
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  to?: string;
 
   // The browser's time zone, so "today" means the user's today.
   @IsOptional()

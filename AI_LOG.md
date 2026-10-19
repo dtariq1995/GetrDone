@@ -86,3 +86,20 @@ How AI (Claude Code) was used to build GetrDone: what was asked, what it generat
 - **Proved the isolation tests can fail:** Temporarily removed `userId` from the two ownership checks (`findOwnedOrThrow` in the tasks and lists services). 10 of the 23 isolation tests failed, then the services were restored from git. The 13 that kept passing cover queries that filter by `userId` separately (list views, counts, search).
 - **Timezone-proof web tests:** The date tests build dates with local-time constructors and were run under `TZ=Asia/Kolkata`, `Pacific/Auckland` and `UTC`, all passing.
 - **Verified:** lint, typecheck, build; API 7 unit + 123 e2e; web 21 tests.
+
+## Milestone 5: Calendar view
+
+- **Generated:**
+  - API: optional `from`/`to` due-date window on `GET /api/tasks` (`from` inclusive, `to` exclusive), with a 400 when the window is empty. 5 new e2e tests.
+  - Web: `calendar.ts` (plain functions: visible days, grouping by day, the new due date after a drop, navigation, range titles) with 13 unit tests; `CalendarView` (month/week toggle, prev/today/next, dnd-kit context), `DayCell` (drop target, "+N more"), `TaskChip` (draggable, opens on click), `AddTaskOnDayDialog`; a sidebar link and the `/calendar` route. Added `@dnd-kit/core` (named in the plan); chose the stable 6.x line over the pre-1.0 `@dnd-kit/react`.
+- **Design choices (walkthrough points):**
+  - **Rescheduling reuses `useUpdateTask`.** The calendar's query lives under the same `['tasks', 'list', …]` key as every other view, so the existing optimistic update and rollback move the chip instantly with no calendar-specific code.
+  - **A timed task keeps its time of day when dragged** (a 3pm appointment moved to Friday stays at 3pm on Friday); all-day tasks stay all-day.
+  - **Click vs drag:** the pointer sensor only starts a drag after 5px of movement, so a click still opens the task. For keyboards, Space picks up and Enter opens, so the two don't clash (dnd-kit's default uses Enter for both).
+  - **Only the visible grid is fetched** (`from`/`to`), which is the plan's "date-range queries for the calendar" answer to scaling.
+  - **Week view is seven day-columns, not an hourly timeline:** simpler to explain, and timed tasks already show their time.
+- **Caught and fixed:**
+  - The API first compared `from` and `to` as **strings**, which gives the wrong order when they use different offsets (`T01:00+05:00` is earlier than `T00:30Z`). Now compares as dates. The first test written for it didn't actually tell the two approaches apart; it was replaced with one that does.
+  - A unit-test expectation was wrong ("Oct 25 – Oct 31" is all one month); swapped in a real cross-month week.
+  - Self-review before testing: removed a leftover hidden `<span>` and a screen-reader live region that duplicated dnd-kit's built-in announcements, and made done chips use one text colour instead of two competing Tailwind classes.
+- **Verified:** calendar unit tests under `America/New_York` (including the Nov 1 DST change), `Asia/Kolkata` and `UTC`. A headless-Chrome run with real mouse and keyboard events: month grid placement, "+2 more", a mouse drag (chip on the new day immediately; server kept 3pm), click opens the panel, a keyboard drag (Space, arrow keys, Space), "+N more" switching to that week, adding from a day's "+", and navigation. Lint, typecheck, build; API 7 unit + 128 e2e; web 34 tests.

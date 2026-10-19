@@ -53,6 +53,11 @@ export class TasksService {
     userId: string,
     query: ListTasksQueryDto,
   ): Promise<TaskResponse[]> {
+    // Compared as dates, not strings: ISO strings with different offsets
+    // (Z vs +05:00) don't sort in time order.
+    if (query.from && query.to && new Date(query.from) >= new Date(query.to)) {
+      throw new BadRequestException('"from" must be before "to"');
+    }
     if (query.view === 'list' && query.listId) {
       // Asking for someone else's list is a 404, not an empty result.
       await this.lists.findOwnedOrThrow(userId, query.listId);

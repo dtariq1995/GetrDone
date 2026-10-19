@@ -38,6 +38,9 @@ export type TaskQuery = {
   listId?: string;
   q?: string;
   sort?: TaskSort;
+  // Due-date window (ISO strings), used by the calendar.
+  from?: string;
+  to?: string;
 };
 
 export type TaskCounts = { inbox: number; today: number; next7: number };
@@ -78,6 +81,8 @@ export function useTasks(query: TaskQuery) {
       if (query.listId) params.set('listId', query.listId);
       if (query.q) params.set('q', query.q);
       if (query.sort) params.set('sort', query.sort);
+      if (query.from) params.set('from', query.from);
+      if (query.to) params.set('to', query.to);
       return apiFetch<Task[]>(`/tasks?${params}`);
     },
   });

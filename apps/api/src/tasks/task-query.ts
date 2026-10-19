@@ -18,6 +18,9 @@ export function buildTaskWhere(
   if (query.q) {
     where.title = { contains: query.q, mode: 'insensitive' };
   }
+  if (query.from || query.to) {
+    where.dueAt = { gte: query.from, lt: query.to };
+  }
 
   switch (query.view) {
     case 'inbox':

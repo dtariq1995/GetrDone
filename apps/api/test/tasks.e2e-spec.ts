@@ -315,6 +315,56 @@ describe('Tasks (e2e)', () => {
       expect(titles(byTitle)).toEqual(['a-high', 'b-low', 'c-none']);
     });
 
+    it('filters by a due-date window for the calendar', async () => {
+      await createTask({ title: 'Before', dueAt: '2026-10-31T23:59:59.000Z' });
+      await createTask({ title: 'Start', dueAt: '2026-11-01T00:00:00.000Z' });
+      await createTask({ title: 'Inside', dueAt: '2026-11-15T12:00:00.000Z' });
+      await createTask({ title: 'End', dueAt: '2026-12-01T00:00:00.000Z' });
+      await createTask({ title: 'No date' });
+
+      const res = await agent
+        .get(
+          '/api/tasks?view=all&sort=due&from=2026-11-01T00:00:00.000Z&to=2026-12-01T00:00:00.000Z',
+        )
+        .expect(200);
+      // `from` is inclusive, `to` is exclusive.
+      expect(titles(res)).toEqual(['Start', 'Inside']);
+    });
+
+    it('includes completed tasks in the window', async () => {
+      const task = await createTask({
+        title: 'Done',
+        dueAt: '2026-11-15T12:00:00.000Z',
+      });
+      await agent.patch(`/api/tasks/${task.id}`).send({ completed: true });
+      const res = await agent.get(
+        '/api/tasks?view=all&from=2026-11-01T00:00:00Z&to=2026-12-01T00:00:00Z',
+      );
+      expect(titles(res)).toEqual(['Done']);
+    });
+
+    it('rejects a window that ends before it starts', async () => {
+      await agent
+        .get(
+          '/api/tasks?view=all&from=2026-12-01T00:00:00Z&to=2026-11-01T00:00:00Z',
+        )
+        .expect(400);
+    });
+
+    it('compares the window as times, not as text', async () => {
+      // 01:00+05:00 is 20:00Z the day before, so this window is valid even
+      // though "T01:00" sorts after "T00:30" as text.
+      await agent
+        .get(
+          '/api/tasks?view=all&from=2026-11-01T01:00:00%2B05:00&to=2026-11-01T00:30:00Z',
+        )
+        .expect(200);
+    });
+
+    it('rejects a window with an invalid date', async () => {
+      await agent.get('/api/tasks?view=all&from=yesterday').expect(400);
+    });
+
     it('returns 404 for a list view of a list that does not exist', async () => {
       await agent.get(`/api/tasks?view=list&listId=${MISSING_ID}`).expect(404);
     });

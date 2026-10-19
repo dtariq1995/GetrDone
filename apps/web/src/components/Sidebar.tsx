@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router';
-import { CircleCheckBig, LogOut, MoreHorizontal, Plus } from 'lucide-react';
+import {
+  CalendarDays,
+  CircleCheckBig,
+  LogOut,
+  MoreHorizontal,
+  Plus,
+} from 'lucide-react';
 import { useLogout, useMe } from '../api/auth';
 import { useLists, type ListWithCount } from '../api/lists';
 import { useTaskCounts } from '../api/tasks';
@@ -46,6 +52,12 @@ export function Sidebar() {
               </NavLink>
             </li>
           ))}
+          <li>
+            <NavLink to="/calendar" className={linkClass}>
+              <CalendarDays className="size-4 shrink-0" aria-hidden />
+              Calendar
+            </NavLink>
+          </li>
         </ul>
 
         <div className="mt-6 mb-1 flex items-center justify-between px-3">
