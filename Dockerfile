@@ -1,7 +1,19 @@
 # One image for the whole app: the Nest API also serves the built React app.
 
+# ---- Base for both stages: Node plus OpenSSL ----
+# Prisma's migration engine (run by `prisma migrate deploy` on start) needs
+# OpenSSL, which the slim image leaves out. Both stages need it: Prisma picks
+# which engine build to download by looking for OpenSSL during `npm ci`, and
+# the runtime must have the same one. (Without it, the build fetched an
+# OpenSSL 1.1 engine; adding OpenSSL only at runtime made Prisma try to
+# download a different engine on start, into read-only node_modules.)
+FROM node:24-bookworm-slim AS base
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
+
 # ---- Stage 1: install everything and build both apps ----
-FROM node:24-bookworm-slim AS build
+FROM base AS build
 WORKDIR /app
 
 # Package manifests first, so Docker reuses the cached `npm ci` layer until
@@ -20,7 +32,7 @@ RUN npm run build
 RUN npm prune --omit=dev
 
 # ---- Stage 2: only what the server needs to run ----
-FROM node:24-bookworm-slim
+FROM base
 ENV NODE_ENV=production
 WORKDIR /app
 

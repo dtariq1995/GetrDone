@@ -2,7 +2,7 @@
 
 A TickTick-style task manager: lists, smart views (Inbox, Today, Next 7 Days), subtasks, a calendar with drag-to-reschedule, and a Kanban board per list. Built with NestJS, PostgreSQL and React.
 
-- **Hosted demo:** _link added after deployment_
+- **Hosted demo:** <https://getrdone.onrender.com> (free plan: the first visit after ~15 idle minutes takes up to a minute to wake)
 - **Demo login:** username `demo`, password `demo-password`
 
 ## Run it with Docker (about 5 minutes)
