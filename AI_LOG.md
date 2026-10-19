@@ -146,3 +146,9 @@ How AI (Claude Code) was used to build GetrDone: what was asked, what it generat
   - **The seed's all-day tasks would have shown a day early in the Americas:** "midnight" inside a UTC container is the previous evening there. The seed now uses midday UTC, which is the same calendar day from UTC−11 to UTC+11 (it can't know the reviewer's zone; real users' all-day tasks use their own local midnight).
 - **Verified:** a clean-machine run under a separate Compose project with a fresh volume. Ready in about a minute from `docker compose up --build` (with cached layers). Migrations applied, demo seeded, demo login works, the SPA route `/calendar` serves the app, and the counts are right for Chicago and Tokyo. A restart skips the seed and finds no pending migrations. The full local suite is green.
 - **Not done here (needs Daanyaal's accounts):** creating the Neon database and the Render service, and pushing to GitHub to run CI. The steps are in the README (Milestone 9).
+
+## Milestone 9: Docs
+
+- **Generated:** `README.md` (Docker quick start with the demo login, features, local development, tests, scripts, environment variables, layout, Render + Neon deploy steps) and `WRITEUP.md` (structure, isolation, trade-offs, more-time list, AI usage; about 650 words, so within the one-page limit). Both drafted by AI from this log and the code. **Daanyaal should edit the write-up into his own words before submitting**, especially the AI section, which describes his review process.
+- **Verified the README instead of trusting it:** fresh `git clone` into a scratch folder, Docker build cache cleared, then exactly the README's `docker compose up --build`. The app was up and the demo login worked in **69 seconds**. On a truly new machine, the base image and npm downloads add a few minutes, still well inside 10.
+- **Left as a placeholder on purpose:** the hosted demo URL in the README. There's no deployment yet, and a made-up link would be worse than none.
