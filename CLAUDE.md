@@ -28,4 +28,5 @@ Development is on Kubuntu: Node 24 LTS (nvm), Docker Engine + Compose plugin.
 - [x] Milestone 5: calendar view
 - [x] Milestone 6: sections + Kanban
 - [x] Milestone 7: polish
-- [ ] Milestone 8: ship (next)
+- [x] Milestone 8: ship (Docker, Compose, CI, Render blueprint; the actual Render + Neon deploy needs Daanyaal's accounts)
+- [ ] Milestone 9: docs (next)

@@ -1,3 +1,7 @@
+# `docker compose up` runs the whole app: Postgres plus the app image
+# (API + built web app) at http://localhost:8080.
+# For development, `npm run db:up` starts just the databases instead.
+
 services:
   db:
     image: postgres:16-alpine
@@ -9,18 +13,38 @@ services:
       - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
-    # Lets other services (the app, added in the Ship milestone) wait until
-    # Postgres actually accepts connections, not just until the container starts.
+    # Lets the app wait until Postgres actually accepts connections, not
+    # just until the container has started.
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U getrdone -d getrdone']
       interval: 2s
       timeout: 5s
       retries: 15
 
+  app:
+    build: .
+    environment:
+      # "db" is the database service's name on Compose's network.
+      DATABASE_URL: postgresql://getrdone:getrdone@db:5432/getrdone
+      # Fine for a local demo; set your own with JWT_SECRET=... docker compose up
+      JWT_SECRET: ${JWT_SECRET:-local-demo-secret-change-me-for-anything-real}
+      # Served over plain http on localhost, so the auth cookie can't be
+      # marked HTTPS-only here (it is on the hosted demo).
+      COOKIE_SECURE: 'false'
+      PORT: 3000
+    # 8080 on your machine, so it doesn't clash with `npm run dev:api` on 3000.
+    ports:
+      - '8080:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+
   # A separate, throwaway database for the API e2e tests. Its data lives in
   # memory (tmpfs), so tests can never touch dev data and a restart wipes it.
+  # In the "test" profile so plain `docker compose up` doesn't start it.
   db-test:
     image: postgres:16-alpine
+    profiles: ['test']
     environment:
       POSTGRES_USER: getrdone
       POSTGRES_PASSWORD: getrdone

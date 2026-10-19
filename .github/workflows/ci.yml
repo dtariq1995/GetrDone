@@ -1,0 +1,61 @@
+# Runs on every push to main and every pull request: the same checks as
+# locally, plus a Docker build so a broken Dockerfile is caught early.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # The throwaway test database, matching apps/api/.env.test.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: getrdone
+          POSTGRES_PASSWORD: getrdone
+          POSTGRES_DB: getrdone_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U getrdone -d getrdone_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:e2e
+      - run: npm run build
+
+  # Builds the image and actually runs it: some problems (like the server
+  # failing to load the Prisma client) only show up when the container starts.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start the app and database
+        run: docker compose up -d --build --wait
+      - name: Smoke test (health check, then log in as the demo user)
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf localhost:8080/api/health && break
+            sleep 2
+          done
+          curl -sf -H 'Content-Type: application/json' \
+            -d '{"username":"demo","password":"demo-password"}' \
+            localhost:8080/api/auth/login
+      - name: Show app logs if anything failed
+        if: failure()
+        run: docker compose logs app

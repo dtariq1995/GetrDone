@@ -11,6 +11,9 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   configureApp(app);
+  // On SIGTERM (e.g. Render or Docker stopping the container), run
+  // onModuleDestroy hooks so the database pool closes cleanly.
+  app.enableShutdownHooks();
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

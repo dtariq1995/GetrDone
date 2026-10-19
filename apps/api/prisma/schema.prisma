@@ -1,8 +1,12 @@
 generator client {
-  provider     = "prisma-client"
-  output       = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
   // Nest compiles to CommonJS, so the generated client must too.
-  moduleFormat = "cjs"
+  moduleFormat        = "cjs"
+  // Spelled out because Prisma otherwise guesses from tsconfig.json, which
+  // isn't there yet when the Docker build runs `prisma generate`. It then
+  // guessed ".ts" and the compiled server couldn't load the client.
+  importFileExtension = "js"
 }
 
 datasource db {

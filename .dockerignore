@@ -1,0 +1,12 @@
+# Rebuilt inside the image, or not needed in it.
+**/node_modules
+**/dist
+**/coverage
+apps/api/src/generated
+.git
+.github
+*.log
+
+# Local secrets never go into an image.
+**/.env
+**/.env.test

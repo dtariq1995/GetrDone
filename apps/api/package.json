@@ -13,7 +13,8 @@
     "lint": "eslint \"{src,test}/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:e2e": "NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --config ./test/jest-e2e.json --runInBand",
+    "seed": "node dist/seed"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -21,6 +22,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.5",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "argon2": "^0.45.1",
