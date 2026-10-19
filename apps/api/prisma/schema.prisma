@@ -1,0 +1,19 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  // Nest compiles to CommonJS, so the generated client must too.
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  // Stored lowercased (see RegisterDto), so "Alice" and "alice" are the same
+  // user and the unique index enforces case-insensitive uniqueness.
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}

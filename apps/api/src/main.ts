@@ -1,11 +1,16 @@
+import { existsSync } from 'node:fs';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { configureApp } from './app.setup';
 
 async function bootstrap() {
+  // Local dev reads apps/api/.env; in production the host sets the variables.
+  if (existsSync('.env')) {
+    process.loadEnvFile('.env');
+  }
+
   const app = await NestFactory.create(AppModule);
-  // Every API route lives under /api, so in production the same server can
-  // serve the React app on every other path (single origin).
-  app.setGlobalPrefix('api');
+  configureApp(app);
   await app.listen(process.env.PORT ?? 3000);
 }
 void bootstrap();

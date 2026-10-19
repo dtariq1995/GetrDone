@@ -1,23 +1,24 @@
-import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router';
+import { GuestRoute, ProtectedRoute } from './components/AuthRoutes';
+import { NotFoundPage } from './components/NotFoundPage';
+import { LoginPage } from './features/auth/LoginPage';
+import { RegisterPage } from './features/auth/RegisterPage';
+import { HomePage } from './features/home/HomePage';
 
-type ApiStatus = 'checking' | 'up' | 'down';
-
-// Placeholder screen for the scaffold milestone. It proves the dev proxy and
-// the API are wired together; the real app layout replaces it later.
 function App() {
-  const [status, setStatus] = useState<ApiStatus>('checking');
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then((res) => setStatus(res.ok ? 'up' : 'down'))
-      .catch(() => setStatus('down'));
-  }, []);
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-2 bg-slate-50 text-slate-800">
-      <h1 className="text-3xl font-semibold">GetrDone</h1>
-      <p className="text-sm text-slate-500">API: {status}</p>
-    </main>
+    <Routes>
+      <Route element={<GuestRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<HomePage />} />
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   );
 }
 

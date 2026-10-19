@@ -4,3 +4,4 @@ coverage
 package-lock.json
 # Prose docs are hand-formatted
 *.md
+src/generated

@@ -21,4 +21,6 @@ Development is on Kubuntu: Node 24 LTS (nvm), Docker Engine + Compose plugin.
 
 ## Status
 - [x] Plan approved
-- [ ] Milestone 1: setup & scaffold (next)
+- [x] Milestone 1: setup & scaffold
+- [x] Milestone 2: auth
+- [ ] Milestone 3: lists & tasks CRUD (next)

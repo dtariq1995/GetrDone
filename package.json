@@ -9,14 +9,16 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "db:up": "docker compose up -d db",
+    "db:up": "docker compose up -d --wait db db-test",
     "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate -w apps/api",
     "dev:api": "npm run dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w apps/api",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

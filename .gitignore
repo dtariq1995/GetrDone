@@ -1,6 +1,8 @@
 node_modules
 dist
 coverage
+# Prisma client, rebuilt by `prisma generate` on npm install
+apps/api/src/generated
 *.tsbuildinfo
 *.log
 
