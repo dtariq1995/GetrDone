@@ -31,10 +31,10 @@ export function TaskChip({
   const time =
     task.dueAt && !task.isAllDay ? format(new Date(task.dueAt), 'h:mma') : null;
   const colors = selected
-    ? 'bg-indigo-100 text-indigo-900'
+    ? 'bg-accent-muted text-ink'
     : done
-      ? 'bg-slate-50 text-slate-400 line-through'
-      : 'bg-slate-100 text-slate-700 hover:bg-slate-200';
+      ? 'bg-surface-muted text-ink-faint line-through'
+      : 'bg-surface-sunken text-ink-soft hover:bg-surface-strong';
 
   return (
     <button
@@ -51,7 +51,7 @@ export function TaskChip({
       }`}
     >
       {time && (
-        <span className="shrink-0 text-slate-500 lowercase">{time}</span>
+        <span className="shrink-0 text-ink-muted lowercase">{time}</span>
       )}
       <span className="truncate">{task.title}</span>
     </button>

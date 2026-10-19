@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import {
@@ -24,6 +24,8 @@ import {
 import { EmptyState } from '../../components/EmptyState';
 import { positionBetween } from '../../lib/position';
 import { useDebouncedValue } from '../../lib/useDebouncedValue';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useShortcut } from '../../lib/useShortcut';
 import { useSortableSensors } from '../../lib/useSortableSensors';
 import { ListLayoutToggle } from '../lists/ListLayoutToggle';
 import { QuickAdd } from './QuickAdd';
@@ -69,10 +71,15 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
   const { selectedId, open } = useSelectedTask();
   const updateTask = useUpdateTask();
   const sensors = useSortableSensors();
+  const quickAddRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  useShortcut('n', () => quickAddRef.current?.focus());
+  useShortcut('/', () => searchRef.current?.focus());
 
   const smartView = SMART_VIEWS.find((v) => v.view === view);
   const list = lists.data?.find((l) => l.id === listId);
   const listsById = new Map(lists.data?.map((l) => [l.id, l]));
+  useDocumentTitle(smartView?.title ?? list?.name);
 
   if (view === 'list' && lists.isSuccess && !list) {
     return (
@@ -83,7 +90,7 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
       >
         <Link
           to="/inbox"
-          className="font-medium text-indigo-600 hover:underline"
+          className="font-medium text-accent-ink hover:underline"
         >
           Go to Inbox
         </Link>
@@ -147,9 +154,9 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="sticky top-0 z-10 flex flex-col gap-4 border-b border-slate-100 bg-white/95 px-6 pt-6 pb-4 backdrop-blur">
+      <header className="sticky top-0 z-10 flex flex-col gap-4 border-b border-line-subtle bg-surface/95 px-6 pt-6 pb-4 backdrop-blur">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+          <h1 className="flex items-center gap-2 text-xl font-semibold text-ink">
             {list && (
               <span
                 className="size-3 rounded-full"
@@ -161,9 +168,10 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
           </h1>
           <div className="flex items-center gap-2">
             {list && <ListLayoutToggle listId={list.id} />}
-            <label className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 focus-within:border-indigo-400">
-              <Search className="size-4 text-slate-400" aria-hidden />
+            <label className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 focus-within:border-accent-line">
+              <Search className="size-4 text-ink-faint" aria-hidden />
               <input
+                ref={searchRef}
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -177,7 +185,7 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as TaskSort)}
                 aria-label="Sort tasks"
-                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"
+                className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-ink-soft"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -189,7 +197,12 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
           </div>
         </div>
         {view !== 'completed' && (
-          <QuickAdd view={view} listId={listId} placeholder={quickAddHint} />
+          <QuickAdd
+            view={view}
+            listId={listId}
+            placeholder={quickAddHint}
+            inputRef={quickAddRef}
+          />
         )}
       </header>
 
@@ -204,7 +217,7 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
             <button
               type="button"
               onClick={() => void tasks.refetch()}
-              className="font-medium text-indigo-600 hover:underline"
+              className="font-medium text-accent-ink hover:underline"
             >
               Try again
             </button>
@@ -244,7 +257,7 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
                   type="button"
                   onClick={() => setShowCompleted((shown) => !shown)}
                   aria-expanded={showCompleted}
-                  className="flex items-center gap-1 px-3 py-1 text-xs font-medium tracking-wide text-slate-500 uppercase hover:text-slate-700"
+                  className="flex items-center gap-1 px-3 py-1 text-xs font-medium tracking-wide text-ink-muted uppercase hover:text-ink-soft"
                 >
                   <ChevronRight
                     className={`size-4 transition ${showCompleted ? 'rotate-90' : ''}`}
@@ -272,7 +285,10 @@ function TaskListSkeleton() {
       className="flex flex-col gap-2 px-3"
     >
       {[0, 1, 2].map((i) => (
-        <li key={i} className="h-10 animate-pulse rounded-lg bg-slate-100" />
+        <li
+          key={i}
+          className="h-10 animate-pulse rounded-lg bg-surface-sunken"
+        />
       ))}
     </ul>
   );

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type Ref } from 'react';
 import { Plus } from 'lucide-react';
 import { useCreateTask, type NewTask, type TaskView } from '../../api/tasks';
 import { todayAllDay } from '../../lib/dates';
@@ -7,11 +7,18 @@ type QuickAddProps = {
   view: TaskView;
   listId?: string;
   placeholder: string;
+  // Lets the view focus this box (the "n" shortcut).
+  inputRef?: Ref<HTMLInputElement>;
 };
 
 // The "Add a task" box at the top of a view. Press Enter to add; the box
 // clears straight away so several tasks can be typed in a row.
-export function QuickAdd({ view, listId, placeholder }: QuickAddProps) {
+export function QuickAdd({
+  view,
+  listId,
+  placeholder,
+  inputRef,
+}: QuickAddProps) {
   const [title, setTitle] = useState('');
   const createTask = useCreateTask();
 
@@ -39,16 +46,17 @@ export function QuickAdd({ view, listId, placeholder }: QuickAddProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 focus-within:border-indigo-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100"
+      className="flex items-center gap-2 rounded-lg border border-line bg-surface-muted px-3 py-2 focus-within:border-accent-line focus-within:bg-surface focus-within:ring-2 focus-within:ring-accent-muted"
     >
-      <Plus className="size-4 text-slate-400" aria-hidden />
+      <Plus className="size-4 text-ink-faint" aria-hidden />
       <input
+        ref={inputRef}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={placeholder}
         aria-label="New task title"
         maxLength={500}
-        className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400"
+        className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-faint"
       />
     </form>
   );

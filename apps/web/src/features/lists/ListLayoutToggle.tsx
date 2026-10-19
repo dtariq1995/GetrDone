@@ -7,14 +7,14 @@ export function ListLayoutToggle({ listId }: { listId: string }) {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition ${
       isActive
-        ? 'bg-indigo-600 text-white'
-        : 'text-slate-600 hover:bg-slate-100'
+        ? 'bg-accent text-white'
+        : 'text-ink-soft hover:bg-surface-sunken'
     }`;
 
   return (
     <nav
       aria-label="Layout"
-      className="flex rounded-lg border border-slate-200 p-0.5"
+      className="flex rounded-lg border border-line p-0.5"
     >
       {/* end: only exact /lists/:id counts as "List", not /board too. */}
       <NavLink to={`/lists/${listId}`} end className={linkClass}>

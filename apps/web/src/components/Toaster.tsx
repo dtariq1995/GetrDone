@@ -14,7 +14,7 @@ export function Toaster() {
         <div
           key={toast.id}
           role="alert"
-          className="pointer-events-auto flex max-w-md items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg"
+          className="pointer-events-auto flex max-w-md items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg ring-1 ring-white/10 motion-safe:animate-fade-in"
         >
           <CircleAlert className="size-4 shrink-0 text-red-400" aria-hidden />
           <span>{toast.message}</span>

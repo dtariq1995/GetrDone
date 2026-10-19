@@ -1,7 +1,87 @@
 @import 'tailwindcss';
 
+/* `dark:` utilities apply when <html> has the "dark" class (set by
+   lib/theme.ts), rather than only following the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Semantic colours. Components use these names (bg-surface, text-ink,
+   border-line, bg-accent...) instead of raw palette colours, so dark mode is
+   one set of overrides below rather than a dark: variant on every element.
+   Values are Tailwind's slate / indigo / red palettes. */
+@theme {
+  --color-surface: #ffffff; /* cards, panels, inputs */
+  --color-surface-muted: #f8fafc; /* page and sidebar background */
+  --color-surface-sunken: #f1f5f9; /* chips, columns, hover */
+  --color-surface-strong: #e2e8f0; /* stronger hover, skeletons */
+
+  --color-line-subtle: #f1f5f9;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  --color-ink: #0f172a; /* headings and body text */
+  --color-ink-soft: #475569; /* secondary text */
+  --color-ink-muted: #64748b; /* labels, metadata */
+  --color-ink-faint: #94a3b8; /* icons, placeholders */
+
+  --color-accent: #4f46e5; /* primary buttons, today marker */
+  --color-accent-strong: #4338ca; /* primary button hover */
+  --color-accent-ink: #4f46e5; /* links and accent text */
+  --color-accent-line: #a5b4fc; /* focused and selected borders */
+  --color-accent-subtle: #eef2ff; /* selected rows, drop targets */
+  --color-accent-muted: #e0e7ff; /* active nav item, focus rings */
+
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fef2f2;
+
+  --animate-slide-in: slide-in 150ms ease-out;
+  --animate-fade-in: fade-in 150ms ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(1rem);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @layer base {
+  /* Overrides the tokens above. In the base layer, which comes after the
+     theme layer, so these win on the same <html> element. */
+  .dark {
+    color-scheme: dark; /* native date pickers, selects and scrollbars */
+
+    --color-surface: #0f172a;
+    --color-surface-muted: #020617;
+    --color-surface-sunken: #1e293b;
+    --color-surface-strong: #334155;
+
+    --color-line-subtle: #1e293b;
+    --color-line: #334155;
+    --color-line-strong: #475569;
+
+    --color-ink: #f1f5f9;
+    --color-ink-soft: #cbd5e1;
+    --color-ink-muted: #94a3b8;
+    --color-ink-faint: #64748b;
+
+    --color-accent: #6366f1;
+    --color-accent-strong: #818cf8;
+    --color-accent-ink: #a5b4fc;
+    --color-accent-line: #6366f1;
+    --color-accent-subtle: #1e1b4b;
+    --color-accent-muted: #312e81;
+
+    --color-danger: #f87171;
+    --color-danger-subtle: #450a0a;
+  }
+
   body {
-    @apply bg-slate-50;
+    @apply bg-surface-muted text-ink antialiased;
   }
 }

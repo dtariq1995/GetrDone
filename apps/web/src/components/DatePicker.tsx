@@ -29,7 +29,7 @@ export function DatePicker({ dueAt, isAllDay, onChange }: DatePickerProps) {
       onClick={() =>
         update(format(addDays(new Date(), offset), 'yyyy-MM-dd'), time)
       }
-      className="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50"
+      className="rounded-md px-2 py-1 text-xs font-medium text-accent-ink hover:bg-accent-subtle"
     >
       {label}
     </button>
@@ -43,7 +43,7 @@ export function DatePicker({ dueAt, isAllDay, onChange }: DatePickerProps) {
           aria-label="Due date"
           value={date}
           onChange={(e) => update(e.target.value, time)}
-          className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-800"
+          className="rounded-lg border border-line-strong px-2 py-1.5 text-sm text-ink"
         />
         <input
           type="time"
@@ -51,14 +51,14 @@ export function DatePicker({ dueAt, isAllDay, onChange }: DatePickerProps) {
           value={time}
           disabled={!date}
           onChange={(e) => update(date, e.target.value)}
-          className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-800 disabled:opacity-50"
+          className="rounded-lg border border-line-strong px-2 py-1.5 text-sm text-ink disabled:opacity-50"
         />
         {dueAt && (
           <button
             type="button"
             onClick={() => update('', '')}
             aria-label="Clear due date"
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-md p-1 text-ink-faint hover:bg-surface-sunken hover:text-ink-soft"
           >
             <X className="size-4" aria-hidden />
           </button>

@@ -15,6 +15,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { EmptyState } from '../../components/EmptyState';
 import { Modal } from '../../components/Modal';
 import { TextField } from '../../components/TextField';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import { useSortableSensors } from '../../lib/useSortableSensors';
 import { ListLayoutToggle } from '../lists/ListLayoutToggle';
 import { useSelectedTask } from '../tasks/useSelectedTask';
@@ -41,6 +42,7 @@ function KanbanView({ listId }: { listId: string }) {
   const deleteSection = useDeleteSection(listId);
 
   const list = lists.data?.find((l) => l.id === listId);
+  useDocumentTitle(list && `${list.name} board`);
   if (lists.isSuccess && !list) {
     return (
       <EmptyState
@@ -50,7 +52,7 @@ function KanbanView({ listId }: { listId: string }) {
       >
         <Link
           to="/inbox"
-          className="font-medium text-indigo-600 hover:underline"
+          className="font-medium text-accent-ink hover:underline"
         >
           Go to Inbox
         </Link>
@@ -81,8 +83,8 @@ function KanbanView({ listId }: { listId: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
-        <h1 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line-subtle px-6 py-5">
+        <h1 className="flex items-center gap-2 text-xl font-semibold text-ink">
           {list && (
             <span
               className="size-3 rounded-full"
@@ -103,7 +105,7 @@ function KanbanView({ listId }: { listId: string }) {
               void tasks.refetch();
               void sections.refetch();
             }}
-            className="font-medium text-indigo-600 hover:underline"
+            className="font-medium text-accent-ink hover:underline"
           >
             Try again
           </button>
@@ -117,7 +119,7 @@ function KanbanView({ listId }: { listId: string }) {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-64 w-72 animate-pulse rounded-xl bg-slate-100"
+              className="h-64 w-72 animate-pulse rounded-xl bg-surface-sunken"
             />
           ))}
         </div>
@@ -202,7 +204,7 @@ function AddSection({ listId }: { listId: string }) {
       <button
         type="button"
         onClick={() => setAdding(true)}
-        className="flex w-72 shrink-0 items-center gap-1.5 rounded-xl border-2 border-dashed border-slate-200 px-3 py-3 text-sm font-medium text-slate-500 hover:border-slate-300 hover:text-slate-700"
+        className="flex w-72 shrink-0 items-center gap-1.5 rounded-xl border-2 border-dashed border-line px-3 py-3 text-sm font-medium text-ink-muted hover:border-line-strong hover:text-ink-soft"
       >
         <Plus className="size-4" aria-hidden />
         Add section
@@ -220,7 +222,7 @@ function AddSection({ listId }: { listId: string }) {
         placeholder="Section name, then Enter"
         aria-label="New section name"
         maxLength={100}
-        className="w-full rounded-xl border border-indigo-300 bg-white px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-100"
+        className="w-full rounded-xl border border-accent-line bg-surface px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-accent-muted"
       />
     </form>
   );
@@ -270,14 +272,14 @@ function RenameSectionDialog({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-surface-sunken"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={renameSection.isPending}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-strong disabled:opacity-60"
           >
             Save
           </button>

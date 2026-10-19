@@ -113,7 +113,7 @@ export function ListDialog({ list, onClose }: ListDialogProps) {
         />
 
         <fieldset>
-          <legend className="mb-2 text-sm font-medium text-slate-700">
+          <legend className="mb-2 text-sm font-medium text-ink-soft">
             Colour
           </legend>
           <div className="flex flex-wrap gap-2">
@@ -124,7 +124,7 @@ export function ListDialog({ list, onClose }: ListDialogProps) {
                 onClick={() => setColor(c)}
                 aria-label={`Colour ${c}`}
                 aria-pressed={color === c}
-                className="flex size-8 items-center justify-center rounded-full ring-offset-2 transition hover:scale-110 aria-pressed:ring-2 aria-pressed:ring-slate-400"
+                className="flex size-8 items-center justify-center rounded-full ring-offset-2 ring-offset-surface transition hover:scale-110 aria-pressed:ring-2 aria-pressed:ring-ink-faint"
                 style={{ backgroundColor: c }}
               >
                 {color === c && (
@@ -144,7 +144,7 @@ export function ListDialog({ list, onClose }: ListDialogProps) {
             <button
               type="button"
               onClick={() => setConfirmingDelete(true)}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-danger hover:bg-danger-subtle"
             >
               Delete list
             </button>
@@ -155,14 +155,14 @@ export function ListDialog({ list, onClose }: ListDialogProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:bg-surface-sunken"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+              className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-strong disabled:opacity-60"
             >
               {list ? 'Save' : 'Create list'}
             </button>

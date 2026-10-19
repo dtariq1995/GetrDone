@@ -13,7 +13,7 @@ function AuthStatus() {
         <p>Couldn't reach GetrDone.</p>
         <button
           onClick={() => void me.refetch()}
-          className="font-medium text-indigo-600 hover:underline"
+          className="font-medium text-accent-ink hover:underline"
         >
           Try again
         </button>

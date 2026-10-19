@@ -19,6 +19,8 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTasks, useUpdateTask, type Task } from '../../api/tasks';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
+import { useShortcut } from '../../lib/useShortcut';
 import { useSelectedTask } from '../tasks/useSelectedTask';
 import { AddTaskOnDayDialog } from './AddTaskOnDayDialog';
 import { DayCell } from './DayCell';
@@ -52,6 +54,9 @@ export function CalendarView() {
   const byDay = groupByDay(tasks.data ?? []);
   const updateTask = useUpdateTask();
   const { selectedId, open } = useSelectedTask();
+  useDocumentTitle('Calendar');
+  // "n" adds a task on today.
+  useShortcut('n', () => setAddingOn(new Date()));
 
   const sensors = useSensors(
     // A drag only starts after the pointer moves 5px, so a plain click on a
@@ -96,9 +101,9 @@ export function CalendarView() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line-subtle px-6 py-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="text-xl font-semibold text-ink">
             {rangeTitle(mode, cursor)}
           </h1>
           <div className="flex items-center">
@@ -106,14 +111,14 @@ export function CalendarView() {
               type="button"
               onClick={() => setCursor(shiftCursor(mode, cursor, -1))}
               aria-label={mode === 'month' ? 'Previous month' : 'Previous week'}
-              className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
+              className="rounded-md p-1.5 text-ink-muted hover:bg-surface-sunken"
             >
               <ChevronLeft className="size-5" aria-hidden />
             </button>
             <button
               type="button"
               onClick={() => setCursor(new Date())}
-              className="rounded-md px-2 py-1 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              className="rounded-md px-2 py-1 text-sm font-medium text-ink-soft hover:bg-surface-sunken"
             >
               Today
             </button>
@@ -121,7 +126,7 @@ export function CalendarView() {
               type="button"
               onClick={() => setCursor(shiftCursor(mode, cursor, 1))}
               aria-label={mode === 'month' ? 'Next month' : 'Next week'}
-              className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100"
+              className="rounded-md p-1.5 text-ink-muted hover:bg-surface-sunken"
             >
               <ChevronRight className="size-5" aria-hidden />
             </button>
@@ -131,7 +136,7 @@ export function CalendarView() {
         <div
           role="group"
           aria-label="Calendar range"
-          className="flex rounded-lg border border-slate-200 p-0.5"
+          className="flex rounded-lg border border-line p-0.5"
         >
           {(['month', 'week'] as const).map((m) => (
             <button
@@ -141,8 +146,8 @@ export function CalendarView() {
               aria-pressed={mode === m}
               className={`rounded-md px-3 py-1 text-sm font-medium capitalize transition ${
                 mode === m
-                  ? 'bg-indigo-600 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-accent text-white'
+                  : 'text-ink-soft hover:bg-surface-sunken'
               }`}
             >
               {m}
@@ -152,7 +157,10 @@ export function CalendarView() {
       </header>
 
       {!tasks.data && tasks.isError && (
-        <p role="alert" className="bg-red-50 px-6 py-2 text-sm text-red-700">
+        <p
+          role="alert"
+          className="bg-danger-subtle px-6 py-2 text-sm text-danger"
+        >
           Couldn’t load tasks.{' '}
           <button
             type="button"
@@ -172,7 +180,7 @@ export function CalendarView() {
         onDragEnd={handleDragEnd}
         onDragCancel={() => setDragging(null)}
       >
-        <div className="grid grid-cols-7 border-b border-slate-200 text-xs font-medium tracking-wide text-slate-500 uppercase">
+        <div className="grid grid-cols-7 border-b border-line text-xs font-medium tracking-wide text-ink-muted uppercase">
           {WEEKDAYS.map((name) => (
             <div key={name} className="px-2 py-2">
               {name}

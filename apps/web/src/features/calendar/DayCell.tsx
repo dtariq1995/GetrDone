@@ -40,18 +40,22 @@ export function DayCell({
   return (
     <div
       ref={setNodeRef}
-      className={`group flex min-h-28 min-w-0 flex-col gap-1 border-r border-b border-slate-100 p-1.5 transition ${
-        isOver ? 'bg-indigo-50' : faded ? 'bg-slate-50/70' : 'bg-white'
+      className={`group flex min-h-28 min-w-0 flex-col gap-1 border-r border-b border-line-subtle p-1.5 transition ${
+        isOver
+          ? 'bg-accent-subtle'
+          : faded
+            ? 'bg-surface-muted/70'
+            : 'bg-surface'
       }`}
     >
       <div className="flex items-center justify-between">
         <span
           className={`flex size-6 items-center justify-center rounded-full text-xs font-medium ${
             today
-              ? 'bg-indigo-600 text-white'
+              ? 'bg-accent text-white'
               : faded
-                ? 'text-slate-400'
-                : 'text-slate-700'
+                ? 'text-ink-faint'
+                : 'text-ink-soft'
           }`}
         >
           {format(day, 'd')}
@@ -60,7 +64,7 @@ export function DayCell({
           type="button"
           onClick={onAdd}
           aria-label={`Add a task on ${format(day, 'EEEE, MMMM d')}`}
-          className="rounded p-0.5 text-slate-400 opacity-0 group-hover:opacity-100 hover:bg-slate-100 hover:text-slate-700 focus:opacity-100"
+          className="rounded p-0.5 text-ink-faint opacity-0 group-hover:opacity-100 hover:bg-surface-sunken hover:text-ink-soft focus:opacity-100"
         >
           <Plus className="size-4" aria-hidden />
         </button>
@@ -83,7 +87,7 @@ export function DayCell({
         <button
           type="button"
           onClick={onShowMore}
-          className="self-start rounded px-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          className="self-start rounded px-1 text-xs font-medium text-ink-muted hover:bg-surface-sunken hover:text-ink-soft"
         >
           +{hidden} more
         </button>

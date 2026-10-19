@@ -43,10 +43,10 @@ export function TaskRow({
       style={style}
       className={`group flex items-start gap-3 rounded-lg px-3 py-2.5 ${
         dragging
-          ? 'relative z-10 bg-white shadow-lg'
+          ? 'relative z-10 bg-surface shadow-lg'
           : selected
-            ? 'bg-indigo-50'
-            : 'hover:bg-slate-50'
+            ? 'bg-accent-subtle'
+            : 'hover:bg-surface-muted'
       }`}
     >
       {dragHandle && <div className="-ml-2 pt-0.5">{dragHandle}</div>}
@@ -68,18 +68,18 @@ export function TaskRow({
       >
         <span
           className={`w-full truncate text-sm ${
-            done ? 'text-slate-400 line-through' : 'text-slate-800'
+            done ? 'text-ink-faint line-through' : 'text-ink'
           }`}
         >
           {task.title}
         </span>
 
         {(task.dueAt || list || task.subtasks.length > 0 || task.notes) && (
-          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
             {task.dueAt && (
               <span
                 className={`flex items-center gap-1 ${
-                  overdue ? 'font-medium text-red-600' : ''
+                  overdue ? 'font-medium text-danger' : ''
                 }`}
               >
                 <CalendarDays className="size-3.5" aria-hidden />

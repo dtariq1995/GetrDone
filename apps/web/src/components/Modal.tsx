@@ -27,10 +27,10 @@ export function Modal({ title, onClose, children }: ModalProps) {
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className="m-auto w-full max-w-md rounded-2xl bg-white p-0 shadow-xl backdrop:bg-slate-900/40"
+      className="m-auto w-full max-w-md rounded-2xl bg-surface p-0 shadow-xl backdrop:bg-slate-900/40 motion-safe:animate-fade-in"
     >
       <div className="p-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900">{title}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-ink">{title}</h2>
         {children}
       </div>
     </dialog>

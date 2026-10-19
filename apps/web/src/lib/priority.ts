@@ -13,8 +13,8 @@ export const PRIORITIES = [
   {
     value: 0,
     label: 'None',
-    text: 'text-slate-400',
-    border: 'border-slate-300',
+    text: 'text-ink-faint',
+    border: 'border-line-strong',
   },
 ] as const;
 

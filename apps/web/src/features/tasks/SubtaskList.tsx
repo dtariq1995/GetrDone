@@ -28,7 +28,7 @@ export function SubtaskList({ task }: { task: Task }) {
 
   return (
     <section>
-      <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+      <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
         Subtasks
         {task.subtasks.length > 0 && (
           <span className="ml-1 normal-case">
@@ -43,7 +43,7 @@ export function SubtaskList({ task }: { task: Task }) {
           return (
             <li
               key={subtask.id}
-              className="group flex items-center gap-2 rounded-md px-1 py-1.5 hover:bg-slate-50"
+              className="group flex items-center gap-2 rounded-md px-1 py-1.5 hover:bg-surface-muted"
             >
               <Checkbox
                 size="sm"
@@ -55,7 +55,7 @@ export function SubtaskList({ task }: { task: Task }) {
               />
               <span
                 className={`flex-1 text-sm ${
-                  done ? 'text-slate-400 line-through' : 'text-slate-700'
+                  done ? 'text-ink-faint line-through' : 'text-ink-soft'
                 }`}
               >
                 {subtask.title}
@@ -64,7 +64,7 @@ export function SubtaskList({ task }: { task: Task }) {
                 type="button"
                 onClick={() => deleteTask.mutate(subtask.id)}
                 aria-label={`Delete subtask “${subtask.title}”`}
-                className="rounded p-0.5 text-slate-400 opacity-0 group-hover:opacity-100 hover:text-red-600 focus:opacity-100"
+                className="rounded p-0.5 text-ink-faint opacity-0 group-hover:opacity-100 hover:text-danger focus:opacity-100"
               >
                 <X className="size-4" aria-hidden />
               </button>
@@ -74,14 +74,14 @@ export function SubtaskList({ task }: { task: Task }) {
       </ul>
 
       <form onSubmit={handleAdd} className="mt-1 flex items-center gap-2 px-1">
-        <Plus className="size-4 text-slate-400" aria-hidden />
+        <Plus className="size-4 text-ink-faint" aria-hidden />
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Add a subtask"
           aria-label="New subtask title"
           maxLength={500}
-          className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-slate-400"
+          className="flex-1 bg-transparent py-1.5 text-sm outline-none placeholder:text-ink-faint"
         />
       </form>
     </section>

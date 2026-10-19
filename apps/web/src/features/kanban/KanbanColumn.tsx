@@ -50,20 +50,20 @@ export function KanbanColumn({
   return (
     <section
       aria-label={column.name}
-      className="flex w-72 shrink-0 flex-col rounded-xl bg-slate-100/80"
+      className="flex w-72 shrink-0 flex-col rounded-xl bg-surface-sunken/80"
     >
       <header className="group flex items-center gap-2 px-3 pt-3 pb-2">
-        <h2 className="truncate text-sm font-semibold text-slate-700">
+        <h2 className="truncate text-sm font-semibold text-ink-soft">
           {column.name}
         </h2>
-        <span className="text-xs text-slate-400">{column.tasks.length}</span>
+        <span className="text-xs text-ink-faint">{column.tasks.length}</span>
         {onRename && onDelete && (
           <div className="ml-auto flex opacity-0 group-hover:opacity-100 focus-within:opacity-100">
             <button
               type="button"
               onClick={onRename}
               aria-label={`Rename section “${column.name}”`}
-              className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+              className="rounded p-1 text-ink-faint hover:bg-surface-strong hover:text-ink-soft"
             >
               <Pencil className="size-3.5" aria-hidden />
             </button>
@@ -71,7 +71,7 @@ export function KanbanColumn({
               type="button"
               onClick={onDelete}
               aria-label={`Delete section “${column.name}”`}
-              className="rounded p-1 text-slate-400 hover:bg-slate-200 hover:text-red-600"
+              className="rounded p-1 text-ink-faint hover:bg-surface-strong hover:text-danger"
             >
               <Trash2 className="size-3.5" aria-hidden />
             </button>
@@ -86,7 +86,7 @@ export function KanbanColumn({
         <ul
           ref={setNodeRef}
           className={`flex min-h-16 flex-1 flex-col gap-2 rounded-lg px-2 pb-2 transition ${
-            isOver ? 'bg-indigo-50' : ''
+            isOver ? 'bg-accent-subtle' : ''
           }`}
         >
           {column.tasks.map((task) => (
@@ -112,14 +112,14 @@ export function KanbanColumn({
               placeholder="Task title, then Enter"
               aria-label={`New task in ${column.name}`}
               maxLength={500}
-              className="w-full rounded-lg border border-indigo-300 bg-white px-2.5 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100"
+              className="w-full rounded-lg border border-accent-line bg-surface px-2.5 py-2 text-sm outline-none focus:ring-2 focus:ring-accent-muted"
             />
           </form>
         ) : (
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-200/70 hover:text-slate-700"
+            className="flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-ink-muted hover:bg-surface-strong/70 hover:text-ink-soft"
           >
             <Plus className="size-4" aria-hidden />
             Add task

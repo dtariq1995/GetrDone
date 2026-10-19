@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router';
 import { CircleCheckBig, LoaderCircle } from 'lucide-react';
 import { useLogin, useRegister, type Credentials } from '../../api/auth';
 import { TextField } from '../../components/TextField';
+import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import {
   validateLogin,
   validateRegister,
@@ -42,6 +43,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const register = useRegister();
   const mutation = mode === 'login' ? login : register;
   const text = copy[mode];
+  useDocumentTitle(text.submit);
 
   function updateField(field: keyof Credentials, value: string) {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -63,26 +65,24 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <main className="flex min-h-screen items-center justify-center bg-surface-muted px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex items-center justify-center gap-2 text-indigo-600">
+        <div className="mb-8 flex items-center justify-center gap-2 text-accent-ink">
           <CircleCheckBig className="size-8" aria-hidden />
-          <span className="text-2xl font-semibold text-slate-900">
-            GetrDone
-          </span>
+          <span className="text-2xl font-semibold text-ink">GetrDone</span>
         </div>
 
         <form
           onSubmit={handleSubmit}
           noValidate
-          className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+          className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-8 shadow-sm"
         >
-          <h1 className="text-xl font-semibold text-slate-900">{text.title}</h1>
+          <h1 className="text-xl font-semibold text-ink">{text.title}</h1>
 
           {mutation.isError && (
             <p
               role="alert"
-              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+              className="rounded-lg bg-danger-subtle px-3 py-2 text-sm text-danger"
             >
               {mutation.error.message}
             </p>
@@ -112,7 +112,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+            className="flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 font-medium text-white transition hover:bg-accent-strong disabled:opacity-60"
           >
             {mutation.isPending && (
               <LoaderCircle className="size-4 animate-spin" aria-hidden />
@@ -121,14 +121,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-ink-soft">
           {text.switchText}{' '}
           {/* Pass the location state along so a redirect target survives
               switching between login and sign-up. */}
           <Link
             to={text.switchTo}
             state={location.state}
-            className="font-medium text-indigo-600 hover:underline"
+            className="font-medium text-accent-ink hover:underline"
           >
             {text.switchLink}
           </Link>

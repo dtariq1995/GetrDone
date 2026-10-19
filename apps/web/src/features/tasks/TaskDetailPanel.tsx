@@ -46,15 +46,16 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
   return (
     <aside
       aria-label="Task details"
-      className="flex w-96 shrink-0 flex-col border-l border-slate-200 bg-white"
+      // Full screen on phones; a 24rem column beside the list from md up.
+      className="fixed inset-0 z-30 flex flex-col bg-surface motion-safe:animate-slide-in md:static md:z-auto md:w-96 md:shrink-0 md:border-l md:border-line"
     >
       {task.isPending ? (
         <div className="flex flex-col gap-3 p-6" aria-busy="true">
-          <div className="h-6 w-2/3 animate-pulse rounded bg-slate-100" />
-          <div className="h-24 animate-pulse rounded bg-slate-100" />
+          <div className="h-6 w-2/3 animate-pulse rounded bg-surface-sunken" />
+          <div className="h-24 animate-pulse rounded bg-surface-sunken" />
         </div>
       ) : !task.data ? (
-        <div className="flex flex-col items-start gap-3 p-6 text-sm text-slate-600">
+        <div className="flex flex-col items-start gap-3 p-6 text-sm text-ink-soft">
           <p>
             {task.error instanceof ApiError && task.error.status === 404
               ? 'This task doesn’t exist anymore.'
@@ -63,7 +64,7 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
           <button
             type="button"
             onClick={onClose}
-            className="font-medium text-indigo-600 hover:underline"
+            className="font-medium text-accent-ink hover:underline"
           >
             Close
           </button>
@@ -107,7 +108,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
 
   return (
     <>
-      <div className="flex items-center gap-3 border-b border-slate-100 px-6 py-4">
+      <div className="flex items-center gap-3 border-b border-line-subtle px-6 py-4">
         <Checkbox
           checked={done}
           priority={task.priority}
@@ -122,7 +123,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
             change({ listId: e.target.value || null, sectionId: null })
           }
           aria-label="List"
-          className="min-w-0 flex-1 rounded-md bg-transparent py-1 text-sm text-slate-600 hover:bg-slate-50"
+          className="min-w-0 flex-1 rounded-md bg-transparent py-1 text-sm text-ink-soft hover:bg-surface-muted"
         >
           <option value="">Inbox</option>
           {lists.data?.map((list) => (
@@ -135,7 +136,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
           type="button"
           onClick={onClose}
           aria-label="Close task details"
-          className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="rounded-md p-1 text-ink-faint hover:bg-surface-sunken hover:text-ink-soft"
         >
           <X className="size-5" aria-hidden />
         </button>
@@ -152,12 +153,12 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
           aria-label="Title"
           maxLength={500}
           className={`w-full text-lg font-semibold outline-none ${
-            done ? 'text-slate-400 line-through' : 'text-slate-900'
+            done ? 'text-ink-faint line-through' : 'text-ink'
           }`}
         />
 
         <section>
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+          <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
             Due date
           </h3>
           <DatePicker
@@ -168,7 +169,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
         </section>
 
         <section>
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+          <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
             Priority
           </h3>
           <div className="flex gap-1" role="radiogroup" aria-label="Priority">
@@ -181,8 +182,8 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
                 onClick={() => change({ priority: p.value })}
                 className={`flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                   task.priority === p.value
-                    ? 'border-indigo-300 bg-indigo-50 text-slate-800'
-                    : 'border-transparent text-slate-600 hover:bg-slate-100'
+                    ? 'border-accent-line bg-accent-subtle text-ink'
+                    : 'border-transparent text-ink-soft hover:bg-surface-sunken'
                 }`}
               >
                 <Flag
@@ -197,14 +198,14 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
 
         {task.listId && sections.data && sections.data.length > 0 && (
           <section>
-            <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+            <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
               Section
             </h3>
             <select
               value={task.sectionId ?? ''}
               onChange={(e) => change({ sectionId: e.target.value || null })}
               aria-label="Section"
-              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"
+              className="w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 text-sm text-ink-soft"
             >
               <option value="">No section</option>
               {sections.data.map((section) => (
@@ -217,7 +218,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
         )}
 
         <section>
-          <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+          <h3 className="mb-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
             Notes
           </h3>
           <textarea
@@ -228,19 +229,19 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
             aria-label="Notes"
             rows={4}
             maxLength={10000}
-            className="w-full resize-y rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+            className="w-full resize-y rounded-lg border border-line px-3 py-2 text-sm text-ink-soft outline-none focus:border-accent-line focus:ring-2 focus:ring-accent-muted"
           />
         </section>
 
         <SubtaskList task={task} />
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-100 px-6 py-3 text-xs text-slate-400">
+      <div className="flex items-center justify-between border-t border-line-subtle px-6 py-3 text-xs text-ink-faint">
         <span>Created {format(new Date(task.createdAt), 'MMM d, yyyy')}</span>
         <button
           type="button"
           onClick={() => setConfirmingDelete(true)}
-          className="flex items-center gap-1 rounded-md px-2 py-1 font-medium text-slate-500 hover:bg-red-50 hover:text-red-600"
+          className="flex items-center gap-1 rounded-md px-2 py-1 font-medium text-ink-muted hover:bg-danger-subtle hover:text-danger"
         >
           <Trash2 className="size-4" aria-hidden />
           Delete

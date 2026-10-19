@@ -32,12 +32,12 @@ export function KanbanCard({ task, selected, onOpen }: KanbanCardProps) {
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`group flex items-start gap-2 rounded-lg border bg-white p-2.5 shadow-sm ${
+      className={`group flex items-start gap-2 rounded-lg border bg-surface p-2.5 shadow-sm ${
         isDragging
-          ? 'relative z-10 border-indigo-300 shadow-lg'
+          ? 'relative z-10 border-accent-line shadow-lg'
           : selected
-            ? 'border-indigo-300'
-            : 'border-slate-200 hover:border-slate-300'
+            ? 'border-accent-line'
+            : 'border-line hover:border-line-strong'
       }`}
     >
       <div className="-ml-1 pt-0.5">
@@ -63,15 +63,15 @@ export function KanbanCard({ task, selected, onOpen }: KanbanCardProps) {
         onClick={onOpen}
         className="flex min-w-0 flex-1 flex-col items-start gap-1.5 text-left"
       >
-        <span className="w-full text-sm break-words text-slate-800">
+        <span className="w-full text-sm break-words text-ink">
           {task.title}
         </span>
         {(task.dueAt || task.subtasks.length > 0) && (
-          <span className="flex flex-wrap items-center gap-x-3 text-xs text-slate-500">
+          <span className="flex flex-wrap items-center gap-x-3 text-xs text-ink-muted">
             {task.dueAt && (
               <span
                 className={`flex items-center gap-1 ${
-                  isOverdue(task) ? 'font-medium text-red-600' : ''
+                  isOverdue(task) ? 'font-medium text-danger' : ''
                 }`}
               >
                 <CalendarDays className="size-3.5" aria-hidden />

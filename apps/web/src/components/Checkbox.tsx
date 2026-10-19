@@ -20,8 +20,8 @@ export function Checkbox({
   size = 'md',
 }: CheckboxProps) {
   const ring = checked
-    ? 'border-slate-300 bg-slate-300 text-white'
-    : `${priorityStyle(priority).border} bg-white hover:bg-slate-100`;
+    ? 'border-line-strong bg-line-strong text-white'
+    : `${priorityStyle(priority).border} bg-surface hover:bg-surface-sunken`;
 
   return (
     <button

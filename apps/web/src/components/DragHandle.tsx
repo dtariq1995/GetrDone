@@ -28,7 +28,7 @@ export function DragHandle({
       aria-label={label}
       {...attributes}
       {...listeners}
-      className="cursor-grab touch-none rounded p-0.5 text-slate-300 opacity-0 group-hover:opacity-100 hover:text-slate-500 focus:opacity-100 active:cursor-grabbing"
+      className="cursor-grab touch-none rounded p-0.5 text-ink-faint opacity-0 group-hover:opacity-100 hover:text-ink-muted focus:opacity-100 active:cursor-grabbing"
     >
       <GripVertical className="size-4" aria-hidden />
     </button>
