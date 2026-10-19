@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: getrdone
+      POSTGRES_PASSWORD: getrdone
+      POSTGRES_DB: getrdone
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # Lets other services (the app, added in the Ship milestone) wait until
+    # Postgres actually accepts connections, not just until the container starts.
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U getrdone -d getrdone']
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  db-data:
