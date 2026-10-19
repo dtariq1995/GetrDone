@@ -24,4 +24,5 @@ Development is on Kubuntu: Node 24 LTS (nvm), Docker Engine + Compose plugin.
 - [x] Milestone 1: setup & scaffold
 - [x] Milestone 2: auth
 - [x] Milestone 3: lists & tasks CRUD
-- [ ] Milestone 4: isolation & edge-case tests (next)
+- [x] Milestone 4: isolation & edge-case tests
+- [ ] Milestone 5: calendar view (next)

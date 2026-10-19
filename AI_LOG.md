@@ -72,3 +72,17 @@ How AI (Claude Code) was used to build GetrDone: what was asked, what it generat
     - Pressing Escape while typing in the title or notes closed the panel without saving, because removing a focused field doesn't fire `blur`. The Escape handler now blurs first.
   - Two failures were test-script problems, not app bugs: headless Chrome doesn't fire blur events unless page focus is emulated, and a reused browser profile was still logged in.
 - **Verified:** lint, typecheck, build, 7 unit + 75 e2e tests; a scripted browser run of sign-up → quick-add in Today → Inbox → create list → add tasks → detail panel (priority, due date, notes, title, subtasks) → complete from row and panel → Completed view → Next 7 Days/All → search (case-insensitive, no-match state) → optimistic toggle checked mid-request, then a 500 → rollback + toast with lists kept → delete list (redirects off it) → unknown list URL.
+
+## Milestone 4: Isolation & edge-case tests
+
+- **Asked:** Commit Milestone 3, then keep working through the milestones, committing each one, until the session runs out.
+- **Generated:**
+  - `isolation.e2e-spec.ts`: Alice owns a list, a task, a subtask and an Inbox task. Bob tries every read and write against them: lists, all five smart views, search, counts, a list view, GET/PATCH/DELETE on each task, creating a task in Alice's list, adding a subtask to her task, moving his own task into her list, and sending a `userId`. Every attempt must return the **same 404 body a non-existent id gets**, and a helper re-reads Alice's data afterwards to prove nothing changed.
+  - `edge-cases.e2e-spec.ts`: 401 on every protected route; expired, wrongly signed and non-JWT tokens; invalid JSON; a JSON array body; oversized notes (400) and an oversized body (413); an impossible date (Feb 30); an empty PATCH; acting on just-deleted records; 10 parallel quick-adds; three simultaneous registrations of one username (exactly one 201 and two 409s).
+  - Web tests with Vitest + Testing Library (named in the plan): date formatting and overdue rules, the date/time input conversions, AuthForm validation (no request is sent when input is invalid) and server error display, TaskRow (checkbox sends the PATCH and doesn't open the task; clicking the title does), and TaskListView (empty state, collapsed Completed group, unknown list).
+- **Reviewed, not just accepted:** All 123 API tests passed on the first run, so each assertion was checked to make sure it tests the right thing:
+  - "Treats a search of only spaces as no search" was expecting **0** results, so it passed while the API searched for two spaces. That was a real bug: the search text wasn't trimmed. Added `@Trim()` to `q` and corrected the test to expect the task back.
+  - A test called "rejects an empty PATCH" was really checking that it's accepted. Renamed.
+- **Proved the isolation tests can fail:** Temporarily removed `userId` from the two ownership checks (`findOwnedOrThrow` in the tasks and lists services). 10 of the 23 isolation tests failed, then the services were restored from git. The 13 that kept passing cover queries that filter by `userId` separately (list views, counts, search).
+- **Timezone-proof web tests:** The date tests build dates with local-time constructors and were run under `TZ=Asia/Kolkata`, `Pacific/Auckland` and `UTC`, all passing.
+- **Verified:** lint, typecheck, build; API 7 unit + 123 e2e; web 21 tests.

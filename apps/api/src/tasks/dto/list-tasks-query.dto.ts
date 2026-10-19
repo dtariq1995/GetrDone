@@ -7,6 +7,7 @@ import {
   MaxLength,
   ValidateIf,
 } from 'class-validator';
+import { Trim } from '../../common/validation';
 
 export const TASK_VIEWS = [
   'inbox',
@@ -37,7 +38,9 @@ export class ListTasksQueryDto {
   @IsUUID()
   listId?: string;
 
-  // Search text, matched against task titles.
+  // Search text, matched against task titles. Trimmed, so a search of only
+  // spaces counts as no search.
+  @Trim()
   @IsOptional()
   @IsString()
   @MaxLength(200)
