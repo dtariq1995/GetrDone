@@ -83,7 +83,7 @@ Run from the repo root.
 
 ## Project layout
 
-```
+```text
 apps/api/          NestJS API
   prisma/          schema.prisma and migrations
   src/auth/        register, login, JWT cookie, global guard, @CurrentUser
