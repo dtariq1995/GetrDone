@@ -1,7 +1,11 @@
+import type { CSSProperties, ReactNode } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { CalendarDays, ListChecks, NotebookText } from 'lucide-react';
 import type { List } from '../../api/lists';
 import { useUpdateTask, type Task } from '../../api/tasks';
 import { Checkbox } from '../../components/Checkbox';
+import { DragHandle } from '../../components/DragHandle';
 import { PriorityFlag } from '../../components/PriorityFlag';
 import { formatDue, isOverdue } from '../../lib/dates';
 
@@ -11,9 +15,23 @@ type TaskRowProps = {
   list?: List;
   selected: boolean;
   onOpen: () => void;
+  // Only set by SortableTaskRow (below), for drag-to-reorder.
+  dragHandle?: ReactNode;
+  rowRef?: (element: HTMLElement | null) => void;
+  style?: CSSProperties;
+  dragging?: boolean;
 };
 
-export function TaskRow({ task, list, selected, onOpen }: TaskRowProps) {
+export function TaskRow({
+  task,
+  list,
+  selected,
+  onOpen,
+  dragHandle,
+  rowRef,
+  style,
+  dragging = false,
+}: TaskRowProps) {
   const updateTask = useUpdateTask();
   const done = task.completedAt !== null;
   const overdue = isOverdue(task);
@@ -21,10 +39,17 @@ export function TaskRow({ task, list, selected, onOpen }: TaskRowProps) {
 
   return (
     <li
-      className={`group flex items-start gap-3 rounded-lg px-3 py-2.5 transition ${
-        selected ? 'bg-indigo-50' : 'hover:bg-slate-50'
+      ref={rowRef}
+      style={style}
+      className={`group flex items-start gap-3 rounded-lg px-3 py-2.5 ${
+        dragging
+          ? 'relative z-10 bg-white shadow-lg'
+          : selected
+            ? 'bg-indigo-50'
+            : 'hover:bg-slate-50'
       }`}
     >
+      {dragHandle && <div className="-ml-2 pt-0.5">{dragHandle}</div>}
       <div className="pt-0.5">
         <Checkbox
           checked={done}
@@ -92,5 +117,37 @@ export function TaskRow({ task, list, selected, onOpen }: TaskRowProps) {
         <PriorityFlag priority={task.priority} />
       </div>
     </li>
+  );
+}
+
+// A TaskRow that can be dragged to a new place in the list (inside a
+// SortableContext). dnd-kit moves it with a CSS transform while dragging;
+// the new position is saved on drop by the parent view.
+export function SortableTaskRow(props: Omit<TaskRowProps, 'dragHandle'>) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.task.id });
+
+  return (
+    <TaskRow
+      {...props}
+      rowRef={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      dragging={isDragging}
+      dragHandle={
+        <DragHandle
+          label={`Reorder “${props.task.title}”`}
+          attributes={attributes}
+          listeners={listeners}
+          setRef={setActivatorNodeRef}
+        />
+      }
+    />
   );
 }

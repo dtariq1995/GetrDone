@@ -6,6 +6,7 @@ import {
 import { Prisma, Task } from '../generated/prisma/client';
 import { ListsService } from '../lists/lists.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { SectionsService } from '../sections/sections.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { ListTasksQueryDto } from './dto/list-tasks-query.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -20,6 +21,7 @@ import {
 const taskSelect = {
   id: true,
   listId: true,
+  sectionId: true,
   parentId: true,
   title: true,
   notes: true,
@@ -47,6 +49,7 @@ export class TasksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly lists: ListsService,
+    private readonly sections: SectionsService,
   ) {}
 
   async findMany(
@@ -112,10 +115,18 @@ export class TasksService {
         (await this.firstPosition({ userId, listId, parentId: null })) - 1;
     }
 
+    if (dto.sectionId) {
+      if (dto.parentId) {
+        throw new BadRequestException('Subtasks can’t be in a section');
+      }
+      await this.checkSection(userId, dto.sectionId, listId);
+    }
+
     return this.prisma.task.create({
       data: {
         userId,
         listId,
+        sectionId: dto.sectionId ?? null,
         parentId: dto.parentId ?? null,
         title: dto.title,
         notes: dto.notes,
@@ -147,6 +158,19 @@ export class TasksService {
       }
     }
 
+    // The list the task will be in after this update.
+    const listId = dto.listId !== undefined ? dto.listId : task.listId;
+    let sectionId = dto.sectionId;
+    if (sectionId) {
+      if (task.parentId) {
+        throw new BadRequestException('Subtasks can’t be in a section');
+      }
+      await this.checkSection(userId, sectionId, listId);
+    } else if (movingList && sectionId === undefined) {
+      // Its old section belongs to the old list, so it can't come along.
+      sectionId = null;
+    }
+
     // Keep the original timestamp if it was already done; clear it if not.
     let completedAt: Date | null | undefined;
     if (dto.completed !== undefined) {
@@ -160,6 +184,7 @@ export class TasksService {
         title: dto.title,
         notes: dto.notes,
         listId: dto.listId,
+        sectionId,
         dueAt: dto.dueAt,
         isAllDay: dto.isAllDay,
         priority: dto.priority,
@@ -198,6 +223,19 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
     return task;
+  }
+
+  // A task's section must be one of the user's sections (404 otherwise) and
+  // must be in the same list as the task (400 otherwise).
+  private async checkSection(
+    userId: string,
+    sectionId: string,
+    listId: string | null,
+  ): Promise<void> {
+    const section = await this.sections.findOwnedOrThrow(userId, sectionId);
+    if (section.listId !== listId) {
+      throw new BadRequestException('That section is in a different list');
+    }
   }
 
   private async firstPosition(where: Prisma.TaskWhereInput): Promise<number> {

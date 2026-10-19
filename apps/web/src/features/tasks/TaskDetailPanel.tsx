@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { Flag, Trash2, X } from 'lucide-react';
 import { ApiError } from '../../api/client';
 import { useLists } from '../../api/lists';
+import { useSections } from '../../api/sections';
 import {
   useDeleteTask,
   useTask,
@@ -82,6 +83,7 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const lists = useLists();
+  const sections = useSections(task.listId ?? undefined);
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const change = (changes: TaskChanges) =>
@@ -114,7 +116,11 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
         />
         <select
           value={task.listId ?? ''}
-          onChange={(e) => change({ listId: e.target.value || null })}
+          // A section belongs to one list, so moving clears it (the server
+          // does the same; sending it keeps the optimistic update accurate).
+          onChange={(e) =>
+            change({ listId: e.target.value || null, sectionId: null })
+          }
           aria-label="List"
           className="min-w-0 flex-1 rounded-md bg-transparent py-1 text-sm text-slate-600 hover:bg-slate-50"
         >
@@ -188,6 +194,27 @@ function TaskDetails({ task, onClose }: { task: Task; onClose: () => void }) {
             ))}
           </div>
         </section>
+
+        {task.listId && sections.data && sections.data.length > 0 && (
+          <section>
+            <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">
+              Section
+            </h3>
+            <select
+              value={task.sectionId ?? ''}
+              onChange={(e) => change({ sectionId: e.target.value || null })}
+              aria-label="Section"
+              className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm text-slate-700"
+            >
+              <option value="">No section</option>
+              {sections.data.map((section) => (
+                <option key={section.id} value={section.id}>
+                  {section.name}
+                </option>
+              ))}
+            </select>
+          </section>
+        )}
 
         <section>
           <h3 className="mb-2 text-xs font-medium tracking-wide text-slate-500 uppercase">

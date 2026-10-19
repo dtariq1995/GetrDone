@@ -34,6 +34,11 @@ export class UpdateTaskDto {
   @IsUUID()
   listId?: string | null;
 
+  // The Kanban column; must be a section of the task's list. null = none.
+  @IsOptional()
+  @IsUUID()
+  sectionId?: string | null;
+
   // null removes the due date.
   @IsOptional()
   @IsISO8601({ strict: true })

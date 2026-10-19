@@ -39,6 +39,7 @@ export function makeTask(overrides: Partial<Task> = {}): Task {
   return {
     id: 'task-1',
     listId: null,
+    sectionId: null,
     parentId: null,
     title: 'Buy milk',
     notes: '',

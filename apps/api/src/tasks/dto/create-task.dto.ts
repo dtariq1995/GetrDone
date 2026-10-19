@@ -30,6 +30,11 @@ export class CreateTaskDto {
   @IsUUID()
   listId?: string | null;
 
+  // The Kanban column; must be a section of the task's list. null = none.
+  @IsOptional()
+  @IsUUID()
+  sectionId?: string | null;
+
   // Makes this a subtask of that task.
   @IsOptional()
   @IsUUID()

@@ -103,3 +103,20 @@ How AI (Claude Code) was used to build GetrDone: what was asked, what it generat
   - A unit-test expectation was wrong ("Oct 25 – Oct 31" is all one month); swapped in a real cross-month week.
   - Self-review before testing: removed a leftover hidden `<span>` and a screen-reader live region that duplicated dnd-kit's built-in announcements, and made done chips use one text colour instead of two competing Tailwind classes.
 - **Verified:** calendar unit tests under `America/New_York` (including the Nov 1 DST change), `Asia/Kolkata` and `UTC`. A headless-Chrome run with real mouse and keyboard events: month grid placement, "+2 more", a mouse drag (chip on the new day immediately; server kept 3pm), click opens the panel, a keyboard drag (Space, arrow keys, Space), "+N more" switching to that week, adding from a day's "+", and navigation. Lint, typecheck, build; API 7 unit + 128 e2e; web 34 tests.
+
+## Milestone 6: Sections + Kanban
+
+- **Generated:**
+  - API: a `Section` model (list → sections cascade; deleting a section sets its tasks' `sectionId` to null), `Task.sectionId`, a sections module (`GET/POST /api/lists/:id/sections`, `PATCH/DELETE /api/sections/:id`), and section rules in `TasksService`. 16 new e2e tests, including Bob vs Alice's sections.
+  - Web: `useSections` hooks; `lib/position.ts` (`positionBetween`) and `kanban/board.ts` (`buildColumns`, `dropResult`) as plain, unit-tested functions; `KanbanView` / `KanbanColumn` / `KanbanCard` with dnd-kit sortable; a List/Board toggle (`/lists/:id` vs `/lists/:id/board`); a Section picker in the task panel; **drag-to-reorder in list views** (deferred from Milestone 3 until dnd-kit was in).
+- **Design choices (walkthrough points):**
+  - **Sections have no `userId`.** As the plan's data model says, they're owned through their list, so the ownership check is `where: { id, list: { userId } }`. Tested by removing that filter: both section isolation tests failed, then it was restored.
+  - **A task's section must be in the task's own list:** another user's section is 404, a section from a different list of yours is 400, and an Inbox task or a subtask can't have one. Moving a task to another list clears its section unless the same request names a section in the new list.
+  - **Only the moved item is written.** `positionBetween` gives it a float halfway between its new neighbours (a unit test halves the same gap 50 times and the order still holds). `dropResult` uses dnd-kit's own `arrayMove`, so the drop lands exactly where the sortable preview showed it.
+  - **Drag handles, not draggable rows:** a grip starts the drag, so Space and Enter keep their normal jobs on the checkbox and title. Reordering is turned off where "my order" has no meaning (smart views mixing lists, other sort orders, while searching).
+  - **The board shares the list view's query,** so a change in one appears in the other, and the existing optimistic update moves cards instantly.
+- **Caught and fixed:**
+  - `npm run db:migrate -- --name x` hung: npm appends arguments to the *last* command in a script, so `--name` went to `prisma generate` while `migrate dev` waited at an interactive prompt. Split into `db:migrate` + `postdb:migrate`.
+  - Self-review: the first reorder code sorted `active` in place, which in the Completed view *is* TanStack Query's cached array, so it would have mutated the cache. It now sorts a copy.
+  - Lint: supertest's `any` was being passed into a typed helper. Typed the variables instead of loosening another rule.
+- **Verified:** headless-Chrome run: board columns; a mouse drag into an empty column (optimistic, then confirmed by the server); a mouse reorder within a column; a keyboard move to the next column (Space, ArrowRight, Space); add section; add a task in a column; rename and delete a section (its task goes to "No section"); section via the panel; List/Board toggle; reordering a list row by its grip survives a reload; grips hidden while searching. Lint, typecheck, build; API 7 unit + 144 e2e; web 45 tests.

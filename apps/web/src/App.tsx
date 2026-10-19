@@ -3,6 +3,7 @@ import { AppLayout } from './components/AppLayout';
 import { GuestRoute, ProtectedRoute } from './components/AuthRoutes';
 import { NotFoundPage } from './components/NotFoundPage';
 import { CalendarView } from './features/calendar/CalendarView';
+import { KanbanRoute } from './features/kanban/KanbanView';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { ListTaskView, TaskListView } from './features/tasks/TaskListView';
@@ -28,6 +29,7 @@ function App() {
             />
           ))}
           <Route path="/lists/:listId" element={<ListTaskView />} />
+          <Route path="/lists/:listId/board" element={<KanbanRoute />} />
           <Route path="/calendar" element={<CalendarView />} />
         </Route>
       </Route>

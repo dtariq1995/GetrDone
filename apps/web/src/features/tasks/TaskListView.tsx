@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import {
   ChevronRight,
   CircleAlert,
@@ -8,11 +14,20 @@ import {
   SearchX,
 } from 'lucide-react';
 import { useLists } from '../../api/lists';
-import { useTasks, type TaskSort, type TaskView } from '../../api/tasks';
+import {
+  useTasks,
+  useUpdateTask,
+  type Task,
+  type TaskSort,
+  type TaskView,
+} from '../../api/tasks';
 import { EmptyState } from '../../components/EmptyState';
+import { positionBetween } from '../../lib/position';
 import { useDebouncedValue } from '../../lib/useDebouncedValue';
+import { useSortableSensors } from '../../lib/useSortableSensors';
+import { ListLayoutToggle } from '../lists/ListLayoutToggle';
 import { QuickAdd } from './QuickAdd';
-import { TaskRow } from './TaskRow';
+import { SortableTaskRow, TaskRow } from './TaskRow';
 import { useSelectedTask } from './useSelectedTask';
 import { SMART_VIEWS } from './views';
 
@@ -52,6 +67,8 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
     sort: view === 'completed' ? undefined : sort,
   });
   const { selectedId, open } = useSelectedTask();
+  const updateTask = useUpdateTask();
+  const sensors = useSortableSensors();
 
   const smartView = SMART_VIEWS.find((v) => v.view === view);
   const list = lists.data?.find((l) => l.id === listId);
@@ -84,20 +101,48 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
 
   const allTasks = tasks.data ?? [];
   // In the Completed view everything is done, so there's nothing to split.
-  const active =
+  let active =
     view === 'completed' ? allTasks : allTasks.filter((t) => !t.completedAt);
   const completed =
     view === 'completed' ? [] : allTasks.filter((t) => t.completedAt);
+  if (sort === 'manual' && view !== 'completed') {
+    // Sorted here too, so an optimistic reorder shows before the refetch.
+    // On a copy: sorting in place would change TanStack Query's cached array.
+    active = [...active].sort((a, b) => a.position - b.position);
+  }
 
-  const renderRow = (task: (typeof allTasks)[number]) => (
-    <TaskRow
-      key={task.id}
-      task={task}
-      // A list label is only useful in views that mix lists.
-      list={view === 'list' ? undefined : listsById.get(task.listId ?? '')}
-      selected={task.id === selectedId}
-      onOpen={() => open(task.id)}
-    />
+  // Drag-to-reorder only where "my order" means something: one list (or
+  // the Inbox), sorted manually, without a search filtering rows out.
+  const canReorder =
+    (view === 'list' || view === 'inbox') && sort === 'manual' && !q;
+
+  function handleDragEnd({ active: dragged, over }: DragEndEvent) {
+    if (!over || dragged.id === over.id) return;
+    const oldIndex = active.findIndex((t) => t.id === dragged.id);
+    const newIndex = active.findIndex((t) => t.id === over.id);
+    const reordered = arrayMove(active, oldIndex, newIndex);
+    // Only the moved task changes: it gets a position between its new
+    // neighbours.
+    updateTask.mutate({
+      id: String(dragged.id),
+      changes: {
+        position: positionBetween(
+          reordered[newIndex - 1]?.position,
+          reordered[newIndex + 1]?.position,
+        ),
+      },
+    });
+  }
+
+  const rowProps = (task: Task) => ({
+    task,
+    // A list label is only useful in views that mix lists.
+    list: view === 'list' ? undefined : listsById.get(task.listId ?? ''),
+    selected: task.id === selectedId,
+    onOpen: () => open(task.id),
+  });
+  const renderRow = (task: Task) => (
+    <TaskRow key={task.id} {...rowProps(task)} />
   );
 
   return (
@@ -115,6 +160,7 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
             {title}
           </h1>
           <div className="flex items-center gap-2">
+            {list && <ListLayoutToggle listId={list.id} />}
             <label className="flex items-center gap-2 rounded-lg border border-slate-200 px-2.5 py-1.5 focus-within:border-indigo-400">
               <Search className="size-4 text-slate-400" aria-hidden />
               <input
@@ -175,7 +221,22 @@ export function TaskListView({ view, listId }: TaskListViewProps) {
           )
         ) : (
           <>
-            <ul className="flex flex-col">{active.map(renderRow)}</ul>
+            {canReorder ? (
+              <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+                <SortableContext
+                  items={active.map((t) => t.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ul className="flex flex-col">
+                    {active.map((task) => (
+                      <SortableTaskRow key={task.id} {...rowProps(task)} />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <ul className="flex flex-col">{active.map(renderRow)}</ul>
+            )}
 
             {completed.length > 0 && (
               <section className="mt-4">

@@ -16,6 +16,7 @@ export type Subtask = {
 export type Task = {
   id: string;
   listId: string | null;
+  sectionId: string | null;
   parentId: string | null;
   title: string;
   notes: string;
@@ -48,12 +49,23 @@ export type TaskCounts = { inbox: number; today: number; next7: number };
 // What can be sent in a PATCH. `completed` is a boolean; the server records
 // the time.
 export type TaskChanges = Partial<
-  Pick<Task, 'title' | 'notes' | 'listId' | 'dueAt' | 'isAllDay' | 'priority'>
+  Pick<
+    Task,
+    | 'title'
+    | 'notes'
+    | 'listId'
+    | 'sectionId'
+    | 'dueAt'
+    | 'isAllDay'
+    | 'priority'
+    | 'position'
+  >
 > & { completed?: boolean };
 
 export type NewTask = {
   title: string;
   listId?: string | null;
+  sectionId?: string | null;
   parentId?: string;
   dueAt?: string;
   isAllDay?: boolean;
