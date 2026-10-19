@@ -1,5 +1,7 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
+import { PrismaExceptionFilter } from './common/prisma-exception.filter';
 
 // App-wide settings, shared by main.ts and the e2e tests so tests run against
 // exactly the same configuration as the real server.
@@ -23,4 +25,9 @@ export function configureApp(app: INestApplication): void {
       transform: true,
     }),
   );
+
+  // Turns "record not found" / "already exists" database errors into 404 /
+  // 409 responses instead of 500s.
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaExceptionFilter(httpAdapter));
 }

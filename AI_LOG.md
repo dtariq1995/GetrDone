@@ -49,3 +49,26 @@ How AI (Claude Code) was used to build GetrDone: what was asked, what it generat
   - First version of the "tampered token" test changed the signature's last character, which can hit unused base64 bits and leave the token valid. Rewrote it to forge the payload instead.
   - **Logout bug found by driving the UI in headless Chrome:** `queryClient.clear()` deleted the `me` query the mounted components were subscribed to, so they never saw the logged-out state and the page stuck on "Hi, ". Now `me` is set to `null` first and only the other queries are removed.
 - **Verified:** lint, typecheck, build, 1 unit + 19 e2e tests, a manual curl run against the built server (argon2id hash confirmed in the database), and a scripted headless-Chrome run of the UI: redirect when logged out, client-side validation, sign up, redirect away from /login when logged in, 404, logout, duplicate username, wrong password, log in.
+
+## Milestone 3: Lists & tasks CRUD
+
+- **Asked:** Commit Milestone 2, add Google login to the plan as a post-build item, and build Milestone 3: lists and tasks scoped by `userId`, DTO validation, the smart-list query builder, and the frontend layout, sidebar, list view, quick-add, detail panel and subtasks.
+- **Generated:**
+  - API: `List` and `Task` models + migration; `ListsService`/`TasksService` with an ownership check (`findOwnedOrThrow`) behind every id from the client; `task-query.ts` (pure functions for each smart list's `where`/`orderBy`); `time-zone.ts` (day boundaries in the user's zone) with unit tests; `PrismaExceptionFilter`; `IsOptionalButNotNull`/`Trim` validators; 56 new e2e tests.
+  - Web: data hooks for lists and tasks (optimistic task updates with rollback), `queryClient.ts` with a global error toast, `AppLayout`, `Sidebar`, `TaskListView`, `TaskRow`, `QuickAdd`, `TaskDetailPanel`, `SubtaskList`, `ListDialog`, plus `Modal`/`ConfirmDialog` (native `<dialog>`), `Checkbox`, `DatePicker` (native date/time inputs), `EmptyState`, `PriorityFlag`, `Toaster`.
+- **Scope decisions (each flagged before building):** Sections are left for Milestone 6 with Kanban; drag-to-reorder waits for dnd-kit (the API already accepts `position`); subtasks are one level deep, set only at creation, and embedded in their parent; "Today" includes overdue tasks.
+- **Design choices (walkthrough points):**
+  - **Timezones without a library:** `startOfDayInZone` uses `Intl.DateTimeFormat` to find local midnight, checking twice so daylight-saving switches don't shift it. Unit tests cover UTC, Chicago, Kolkata (+5:30) and both New York DST changes.
+  - **`IsOptionalButNotNull`:** class-validator's `@IsOptional()` also lets `null` through, so `{"title": null}` would have reached the database and returned a 500. Non-clearable PATCH fields now return a 400 for null.
+  - **Subtasks share their parent's list,** and moving a parent moves its subtasks in the same transaction.
+  - **A list view for someone else's list returns 404,** not an empty list.
+  - **Optimistic updates** patch every cached task view and the open task, snapshot first, and restore the snapshot on error. A global `MutationCache.onError` shows the toast, so components don't each handle errors. The login and register forms opt out with `meta.inlineError`.
+  - **The open task lives in the URL** (`?task=<id>`), so a refresh keeps it open and Back closes it.
+- **Problems hit and fixed:**
+  - In Prisma 7, `migrate dev` no longer regenerates the client, so new models showed up as type errors. `npm run db:migrate` now runs `prisma migrate dev && prisma generate`.
+  - **Found by driving the UI in headless Chrome (via the DevTools protocol):**
+    - A failed *background refetch* replaced already-loaded tasks and lists with error screens. Views now show the error state only when there is no cached data.
+    - Server errors showed as "Request failed (500)". 5xx responses now read "Something went wrong on our end. Please try again."
+    - Pressing Escape while typing in the title or notes closed the panel without saving, because removing a focused field doesn't fire `blur`. The Escape handler now blurs first.
+  - Two failures were test-script problems, not app bugs: headless Chrome doesn't fire blur events unless page focus is emulated, and a reused browser profile was still logged in.
+- **Verified:** lint, typecheck, build, 7 unit + 75 e2e tests; a scripted browser run of sign-up → quick-add in Today → Inbox → create list → add tasks → detail panel (priority, due date, notes, title, subtasks) → complete from row and panel → Completed view → Next 7 Days/All → search (case-insensitive, no-match state) → optimistic toggle checked mid-request, then a 500 → rollback + toast with lists kept → delete list (redirects off it) → unknown list URL.

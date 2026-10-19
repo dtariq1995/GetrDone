@@ -55,6 +55,14 @@ export async function apiFetch<T>(
   }
 
   const data: unknown = await res.json().catch(() => null);
+  // 5xx means a server-side problem (or, in dev, the API not running behind
+  // the proxy). Its details mean nothing to the user, so say it plainly.
+  if (res.status >= 500) {
+    throw new ApiError(
+      res.status,
+      'Something went wrong on our end. Please try again.',
+    );
+  }
   if (!res.ok) {
     throw new ApiError(
       res.status,

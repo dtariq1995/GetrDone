@@ -16,4 +16,62 @@ model User {
   username     String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
+
+  lists List[]
+  tasks Task[]
+}
+
+model List {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  // A hex colour like "#6366f1", shown as a dot in the sidebar.
+  color     String
+  // Sidebar order. A float, so moving a list between two others only has to
+  // update that one row (e.g. 1.5 between 1 and 2).
+  position  Float
+  createdAt DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Deleting a list deletes its tasks.
+  tasks Task[]
+
+  @@index([userId, position])
+}
+
+model Task {
+  id          String    @id @default(uuid())
+  // Stored on every task (even though lists also have a userId) so every task
+  // query can be scoped to its owner in one WHERE, without a join. Inbox
+  // tasks have no list, so they need it anyway.
+  userId      String
+  // null = the Inbox.
+  listId      String?
+  // Set for subtasks. Only one level deep: a subtask can't have subtasks.
+  parentId    String?
+  title       String
+  notes       String    @default("")
+  // Stored in UTC. All-day tasks store midnight at the start of that day in
+  // the user's timezone.
+  dueAt       DateTime?
+  isAllDay    Boolean   @default(false)
+  // 0 none, 1 low, 2 medium, 3 high.
+  priority    Int       @default(0)
+  // null = not done. A timestamp (not a boolean) so the Completed view can
+  // sort by when things were finished.
+  completedAt DateTime?
+  // Manual order within a list (or within a parent, for subtasks). A float
+  // for the same reason as List.position.
+  position    Float
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  list     List?  @relation(fields: [listId], references: [id], onDelete: Cascade)
+  parent   Task?  @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks Task[] @relation("Subtasks")
+
+  @@index([userId, dueAt])
+  @@index([userId, listId, position])
+  @@index([parentId])
 }

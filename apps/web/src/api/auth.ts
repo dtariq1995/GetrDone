@@ -38,6 +38,8 @@ export function useLogin() {
   return useMutation({
     mutationFn: (credentials: Credentials) =>
       apiFetch<User>('/auth/login', { method: 'POST', body: credentials }),
+    // The form shows the error itself, so skip the global toast.
+    meta: { inlineError: true },
     // The response is the user, so store it directly instead of refetching.
     onSuccess: (user) => queryClient.setQueryData(meKey, user),
   });
@@ -48,6 +50,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: (credentials: Credentials) =>
       apiFetch<User>('/auth/register', { method: 'POST', body: credentials }),
+    meta: { inlineError: true },
     onSuccess: (user) => queryClient.setQueryData(meKey, user),
   });
 }
