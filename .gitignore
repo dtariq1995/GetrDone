@@ -6,10 +6,14 @@ apps/api/src/generated
 *.tsbuildinfo
 *.log
 
-# Local secrets; copy .env.example to .env
+# Local secrets; copy .env.example to .env. .env.local holds the Neon
+# connection string written by `neon deploy`.
 .env
+.env.local
+.env.*.local
 
 .DS_Store
 .idea
 .vscode/*
 !.vscode/extensions.json
+.neon

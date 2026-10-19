@@ -15,7 +15,7 @@ cd GetrDone
 docker compose up --build
 ```
 
-When the log shows `Nest application successfully started`, open **http://localhost:8080** and log in as `demo` / `demo-password`, or sign up for a new account.
+When the log shows `Nest application successfully started`, open **<http://localhost:8080>** and log in as `demo` / `demo-password`, or sign up for a new account.
 
 This starts PostgreSQL and the app. On every start, the app applies database migrations and makes sure the demo account exists. Stop it with `Ctrl+C`; `docker compose down -v` also deletes the database.
 
@@ -74,7 +74,8 @@ Run from the repo root.
 
 | Variable | Required | Description |
 | --- | --- | --- |
-| `DATABASE_URL` | yes | PostgreSQL connection string |
+| `DATABASE_URL` | yes | PostgreSQL connection string (on Neon: the pooled one) |
+| `DATABASE_URL_UNPOOLED` | no | Neon's direct connection; used for migrations when set |
 | `JWT_SECRET` | yes | Signs login tokens. Any long random string |
 | `PORT` | no | Port to listen on (default `3000`) |
 | `NODE_ENV` | no | `production` makes the auth cookie HTTPS-only (set in the Docker image) |
@@ -98,11 +99,11 @@ apps/web/          React app (Vite)
 
 ## Deploying (Render + Neon)
 
-1. Create a free Postgres database on [Neon](https://neon.tech) and copy its connection string.
-2. On [Render](https://render.com), choose **New → Blueprint** and select this repo. `render.yaml` defines one Docker web service; Render generates `JWT_SECRET`.
-3. Paste the Neon connection string into `DATABASE_URL` when Render asks for it, and deploy.
+1. **Database (Neon).** The project is linked with the [Neon CLI](https://neon.com/docs/cli) (`neon.ts`, region AWS us-west-2). `neon deploy` provisions it and writes `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct) to `.env.local`, which is git-ignored.
+2. **App (Render).** Choose **New → Blueprint** and select this repo. `render.yaml` defines one Docker web service in Render's default Oregon region, next to the database; Render generates `JWT_SECRET`.
+3. When Render asks, paste the two Neon connection strings into `DATABASE_URL` and `DATABASE_URL_UNPOOLED`, then deploy.
 
-Migrations and the demo account are applied automatically when the service starts.
+On every start the container applies migrations over the direct connection (Neon's pooler breaks Prisma Migrate) and makes sure the demo account exists. The app's own queries use the pooled connection.
 
 ## More
 
