@@ -90,6 +90,8 @@ GetrDone/
 
 **Post-submission backlog** (the schema is ready for it): Tags (`Tag`, `TaskTag`), recurring tasks (an `rrule` field on Task, with the next occurrence created on completion), Pomodoro sessions, habits and streaks, a stats dashboard.
 
+**Google login** (after the initial build): "Sign in with Google" alongside username/password, using the OAuth authorization-code flow on the API. After Google confirms the user, the API issues the same JWT cookie, so the guard, `@CurrentUser()` and every scoped query stay unchanged. Schema changes: make `User.passwordHash` nullable (Google-only users have no password) and add a unique `googleId`. Decide how to handle an existing username account signing in with Google (link only after they log in with their password; never auto-merge by email).
+
 ## Walkthrough prep (answer these in WRITEUP.md and know them cold)
 - **Password storage**: argon2id with a per-hash salt. The hash is never returned (it's stripped from response DTOs).
 - **Malformed input**: the ValidationPipe whitelist returns 400 with field messages. Prisma `P2025`/`P2002` are mapped to 404/409 by the exception filter.
